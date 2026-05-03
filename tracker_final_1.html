@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在泰媽媽 · 每日打卡</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF7F2;
+  --warm-white: #FFFDF9;
+  --sage: #7C9E8A;
+  --sage-light: #B5CEBC;
+  --sage-deep: #4A7260;
+  --terracotta: #C17B5C;
+  --terracotta-light: #E8C4B0;
+  --ink: #2C2C2C;
+  --ink-soft: #5A5A5A;
+  --ink-faint: #9A9A9A;
+  --border: #E8E2D9;
+  --border-soft: #F0EBE3;
+  --gold: #C9A84C;
+  --must: #E07B5A;
+  --try: #5A8FA8;
+  --power: #7C9E8A;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* Setup Screen */
+#setup-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--warm-white);
+}
+
+.setup-card {
+  max-width: 480px;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+}
+
+.setup-logo {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--sage-deep);
+  margin-bottom: 0.25rem;
+}
+
+.setup-sub {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  margin-bottom: 2rem;
+}
+
+.setup-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.setup-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: monospace;
+  color: var(--ink);
+  background: var(--cream);
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.setup-input:focus { border-color: var(--sage); }
+
+.setup-note {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--cream);
+  border-radius: 8px;
+}
+
+.setup-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--sage-deep);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.setup-btn:hover { background: var(--sage); }
+
+.setup-err {
+  font-size: 0.8rem;
+  color: var(--must);
+  margin-top: 0.75rem;
+  display: none;
+}
+
+/* Main App */
+#app { display: none; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.header-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--sage-deep);
+}
+.header-date {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+.reset-btn {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.reset-btn:hover { color: var(--must); background: #FEF0EB; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.tab {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab.active { color: var(--sage-deep); border-bottom-color: var(--sage-deep); }
+
+/* Week Nav */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.wk-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.wk-lbl { font-size: 0.82rem; color: var(--ink-faint); flex: 1; text-align: center; }
+
+.day-tabs { display: flex; gap: 5px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.day-tab {
+  padding: 6px 8px;
+  font-size: 11px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  cursor: pointer;
+  background: white;
+  color: var(--ink-faint);
+  text-align: center;
+  min-width: 54px;
+  transition: all 0.15s;
+}
+.day-tab.active { background: var(--sage-deep); color: white; border-color: var(--sage-deep); font-weight: 500; }
+.day-tab.power { border-color: var(--sage-light); }
+.day-tab.power.active { background: var(--sage-deep); }
+.day-tab .done-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); margin: 3px auto 0; }
+
+/* Progress */
+.prog-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--ink-faint); margin-bottom: 5px; }
+.prog-wrap { background: var(--border-soft); border-radius: 100px; height: 4px; margin-bottom: 1.25rem; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 100px; background: var(--sage); transition: width 0.4s ease; }
+
+/* Banner */
+.banner {
+  background: linear-gradient(135deg, #E8F2EC, #D4EAD9);
+  border-left: 3px solid var(--sage);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.82rem;
+  color: var(--sage-deep);
+  display: none;
+}
+
+/* Section */
+.sec-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; margin-top: 1.25rem; }
+.sec-title { font-size: 0.72rem; font-weight: 500; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.07em; }
+.badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.b-must { background: #FDEEE9; color: var(--must); }
+.b-try { background: #E6F0F5; color: var(--try); }
+.b-power { background: #E8F2EC; color: var(--sage-deep); }
+.b-thai { background: #EEF0FB; color: #4A4FA8; }
+.b-life { background: #FDF3E8; color: var(--terracotta); }
+
+/* Task */
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.15s;
+}
+.task:hover { border-color: var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.task.done { background: var(--cream); }
+.task.done .t-lbl { color: var(--ink-faint); text-decoration: line-through; }
+.chk {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  transition: all 0.2s;
+}
+.task.done .chk { background: var(--sage); border-color: var(--sage); }
+.ck { display: none; width: 10px; height: 10px; }
+.task.done .ck { display: block; }
+.t-lbl { font-size: 0.88rem; color: var(--ink); line-height: 1.4; }
+.t-sub { font-size: 0.75rem; color: var(--ink-faint); margin-top: 2px; }
+.skill-tag { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 10px; margin-right: 3px; margin-top: 3px; font-weight: 500; }
+.tag-s { background: #FDEEE9; color: var(--must); }
+.tag-w { background: #E8F2EC; color: var(--sage-deep); }
+.tag-r { background: #E6F0F5; color: var(--try); }
+.tag-l { background: #EEF0FB; color: #4A4FA8; }
+
+/* Saving indicator */
+.saving { font-size: 0.72rem; color: var(--sage); opacity: 0; transition: opacity 0.3s; }
+.saving.show { opacity: 1; }
+
+/* Note */
+.divider { border: none; border-top: 1px solid var(--border-soft); margin: 1.25rem 0; }
+.note-area {
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  resize: none;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.note-area:focus { border-color: var(--sage-light); }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 1.25rem; }
+.stat { background: white; border: 1px solid var(--border-soft); border-radius: 14px; padding: 1rem 0.75rem; text-align: center; }
+.stat-n { font-family: 'Noto Serif TC', serif; font-size: 1.6rem; font-weight: 700; color: var(--sage-deep); }
+.stat-l { font-size: 0.72rem; color: var(--ink-faint); margin-top: 3px; }
+
+/* Thai Tab */
+.thai-card {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.thai-week-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #EEF0FB; color: #4A4FA8; font-weight: 500; margin-right: 8px; }
+.thai-title { font-size: 0.9rem; font-weight: 500; color: var(--ink); display: flex; align-items: center; margin-bottom: 0.6rem; }
+.thai-vocab { font-size: 0.75rem; color: var(--ink-faint); margin-bottom: 0.75rem; line-height: 1.6; padding: 0.5rem 0.75rem; background: var(--cream); border-radius: 8px; }
+.slot { border-top: 1px solid var(--border-soft); padding: 0.6rem 0 0; margin-top: 0.5rem; }
+.slot-row { display: flex; gap: 10px; margin-bottom: 0.4rem; }
+.slot-time { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); min-width: 30px; padding-top: 2px; }
+.slot-act { font-size: 0.82rem; color: var(--ink); line-height: 1.5; }
+.slot-why { font-size: 0.7rem; color: var(--ink-faint); margin-top: 2px; font-style: italic; }
+
+/* Content Tab */
+.content-card {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.content-card-hd { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-soft); }
+.content-card-hd .c-title { font-size: 0.85rem; font-weight: 500; color: var(--ink); flex: 1; }
+.content-tasks { padding: 0.5rem 0.75rem; }
+
+/* Sat checklist */
+.sat-item {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  background: white;
+}
+.sat-item.done { background: var(--cream); }
+.sat-item.done .t-lbl { color: var(--ink-faint); text-decoration: line-through; }
+
+/* Sync status */
+.sync-bar {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--sage-deep);
+  color: white;
+  font-size: 0.78rem;
+  padding: 6px 16px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sync-bar.show { opacity: 1; }
+
+@media (max-width: 480px) {
+  #app { padding: 1rem 0.75rem 4rem; }
+  .tab { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+  .stat-n { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Setup Screen -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">🌿 在泰媽媽副業計畫</div>
+    <div class="setup-sub">每日打卡系統 × Notion 同步</div>
+    <div class="setup-label">Notion Integration Token</div>
+    <input class="setup-input" id="token-input" type="password" placeholder="secret_xxxxxxxxxxxxxx">
+    <div class="setup-label">每日打卡資料庫 ID</div>
+    <input class="setup-input" id="db-input" type="text" placeholder="從 Notion 資料庫 URL 複製">
+    <div class="setup-note">
+      資料庫 ID 是 Notion 網址裡的一串英數字，例如：<br>
+      notion.so/abc<strong>1a023578cd4b467e801d2cba465dafe2</strong>?v=...<br>
+      粗體部分就是 ID，32 個字元。
+    </div>
+    <button class="setup-btn" onclick="connectNotion()">連接 Notion</button>
+    <div class="setup-err" id="setup-err"></div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="header-title">🌿 在泰媽媽副業計畫</div>
+      <div class="header-date" id="header-date"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="saving" id="saving-ind">已同步 ✓</span>
+      <button class="reset-btn" onclick="resetSetup()">重設連接</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('daily',this)">每日打卡</div>
+    <div class="tab" onclick="switchTab('thai',this)">泰文計畫</div>
+    <div class="tab" onclick="switchTab('content',this)">內容專業</div>
+  </div>
+
+  <!-- Daily Tab -->
+  <div id="tab-daily" class="page">
+    <div class="week-nav">
+      <button class="wk-btn" onclick="chgWeek(-1)">←</button>
+      <div class="wk-lbl" id="wk-lbl"></div>
+      <button class="wk-btn" onclick="chgWeek(1)">→</button>
+    </div>
+    <div class="day-tabs" id="day-tabs"></div>
+    <div id="banner" class="banner"></div>
+    <div class="prog-row"><span id="prog-txt">今日進度</span><span id="prog-pct">0%</span></div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div id="tasks-out"></div>
+    <hr class="divider">
+    <div class="sec-hd"><div class="sec-title">今天的小收穫</div></div>
+    <textarea class="note-area" id="daily-note" rows="2" placeholder="一句話記下今天的進展..."></textarea>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n" id="s1">0</div><div class="stat-l">連續天</div></div>
+      <div class="stat"><div class="stat-n" id="s2">0</div><div class="stat-l">本週完成</div></div>
+      <div class="stat"><div class="stat-n" id="s3">0</div><div class="stat-l">累計打卡</div></div>
+    </div>
+  </div>
+
+  <!-- Thai Tab -->
+  <div id="tab-thai" class="page" style="display:none">
+    <div class="sec-hd"><div class="sec-title">學習原則</div><span class="badge b-thai">語言學習科學</span></div>
+    <div style="font-size:0.82rem;color:var(--ink-soft);margin-bottom:1.25rem;line-height:1.8;padding:0.75rem 1rem;background:white;border-radius:12px;border:1px solid var(--border-soft)">
+      ☀️ <strong>早上輸出（說＋寫）</strong> — 大腦剛完成睡眠記憶鞏固，開口和動筆效果最好。<br>
+      🌙 <strong>晚上輸入（聽＋讀）</strong> — 睡前吸收的內容會在睡眠中深度強化。<br>
+      每週一個主題，四個技能每天輪替。
+    </div>
+
+    <div class="thai-card">
+      <div class="thai-title"><span class="thai-week-badge">第一週</span>接客基礎用語</div>
+      <div class="thai-vocab">สวัสดี 您好 · ขอถาม 請問 · ช่วยอะไรได้ไหม 需要幫忙嗎 · ขอบคุณ 謝謝 · ไม่เป็นไร 不客氣</div>
+      <div class="slot">
+        <div class="slot-row">
+          <div class="slot-time">☀️早</div>
+          <div><span class="skill-tag tag-s">說</span><span class="skill-tag tag-w">寫</span><div class="slot-act">對著鏡子練習本週5句，每句說3遍，再手寫一遍</div><div class="slot-why">早上輸出：口肌記憶＋運動記憶同時啟動</div></div>
+        </div>
+        <div class="slot-row" style="margin-top:0.5rem">
+          <div class="slot-time">🌙晚</div>
+          <div><span class="skill-tag tag-r">聽</span><span class="skill-tag tag-l">讀</span><div class="slot-act">找泰國服務業對話YouTube，不看字幕聽一遍，再開字幕對照</div><div class="slot-why">晚上輸入：真實語境睡前聽，睡眠中鞏固</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="thai-card">
+      <div class="thai-title"><span class="thai-week-badge">第二週</span>家具與空間詞彙</div>
+      <div class="thai-vocab">โซฟา 沙發 · โต๊ะอาหาร 餐桌 · สี 顏色 · ขนาด 尺寸 · วัสดุ 材質 · สั่งทำ 訂做</div>
+      <div class="slot">
+        <div class="slot-row">
+          <div class="slot-time">☀️早</div>
+          <div><span class="skill-tag tag-w">寫</span><span class="skill-tag tag-s">說</span><div class="slot-act">把8個單字各造一個短句，手寫後大聲唸出來</div><div class="slot-why">造句比死背記憶強度高3倍</div></div>
+        </div>
+        <div class="slot-row" style="margin-top:0.5rem">
+          <div class="slot-time">🌙晚</div>
+          <div><span class="skill-tag tag-l">讀</span><span class="skill-tag tag-r">聽</span><div class="slot-act">找泰國家居IG貼文逐句讀懂，睡前聽一首泰文慢歌</div><div class="slot-why">真實文本建立語感，慢歌幫助音調記憶</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="thai-card">
+      <div class="thai-title"><span class="thai-week-badge">第三週</span>議價與確認用語</div>
+      <div class="thai-vocab">ราคาเท่าไหร่ 多少錢 · ลดได้ไหม 便宜一點 · รอให้ฉันเช็ค 我幫你確認 · ไม่มีปัญหา 沒問題</div>
+      <div class="slot">
+        <div class="slot-row">
+          <div class="slot-time">☀️早</div>
+          <div><span class="skill-tag tag-s">說</span><div class="slot-act">模擬一段議價對話，自己扮演兩個角色說完整段</div><div class="slot-why">角色扮演最接近真實使用情境</div></div>
+        </div>
+        <div class="slot-row" style="margin-top:0.5rem">
+          <div class="slot-time">🌙晚</div>
+          <div><span class="skill-tag tag-r">聽</span><span class="skill-tag tag-l">讀</span><div class="slot-act">聽泰國市場議價影片，記下關鍵句，再讀本週手寫筆記</div><div class="slot-why">睡前複習是間隔重複法核心</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="thai-card">
+      <div class="thai-title"><span class="thai-week-badge">第四週</span>日常閒聊破冰</div>
+      <div class="thai-vocab">อยู่แถวไหน 住哪裡 · อร่อย 好吃 · สวย 好看 · แพงไป 太貴了 · ไม่เป็นไร 沒關係</div>
+      <div class="slot">
+        <div class="slot-row">
+          <div class="slot-time">☀️早</div>
+          <div><span class="skill-tag tag-s">說</span><span class="skill-tag tag-w">寫</span><div class="slot-act">用泰文寫三句今天的計畫，再大聲唸出來</div><div class="slot-why">用目標語言思考日常，從背句子進化到真正說話</div></div>
+        </div>
+        <div class="slot-row" style="margin-top:0.5rem">
+          <div class="slot-time">🌙晚</div>
+          <div><span class="skill-tag tag-r">聽</span><div class="slot-act">看10分鐘內泰國YouTube Vlog，不開字幕，能懂多少算多少</div><div class="slot-why">沉浸式聽力培養語感，不追求全懂</div></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="sec-hd"><div class="sec-title">週六備課清單</div><span class="badge b-power">每週六完成</span></div>
+    <div id="sat-list"></div>
+  </div>
+
+  <!-- Content Tab -->
+  <div id="tab-content" class="page" style="display:none">
+    <div class="content-card">
+      <div class="content-card-hd">
+        <span class="badge b-thai">泰文學習帳號</span>
+        <span class="c-title">小紅書 · 每週 2–3 篇</span>
+      </div>
+      <div class="content-tasks" id="thai-ideas"></div>
+    </div>
+    <div class="content-card">
+      <div class="content-card-hd">
+        <span class="badge b-life">旅遊生活帳號</span>
+        <span class="c-title">IG ＋ 小紅書 · 每週 3–4 篇</span>
+      </div>
+      <div class="content-tasks" id="life-ideas"></div>
+    </div>
+    <div class="stats-row" style="margin-top:1rem">
+      <div class="stat"><div class="stat-n" id="c1">0/3</div><div class="stat-l">泰文帳號本週</div></div>
+      <div class="stat"><div class="stat-n" id="c2">0/4</div><div class="stat-l">生活帳號本週</div></div>
+      <div class="stat"><div class="stat-n" id="c3">0</div><div class="stat-l">本週發文總計</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sync-bar" id="sync-bar">正在同步到 Notion...</div>
+
+<script>
+const DAYS = ['日','一','二','三','四','五','六'];
+const POWER = [2,4];
+
+let notionToken = '';
+let notionDbId = '';
+let pageIdMap = {}; // dateKey -> Notion page ID
+let localState = {};
+
+function loadConfig() {
+  notionToken = localStorage.getItem('nToken') || '';
+  notionDbId = localStorage.getItem('nDbId') || '';
+  localState = JSON.parse(localStorage.getItem('localState') || '{}');
+  pageIdMap = JSON.parse(localStorage.getItem('pageIdMap') || '{}');
+}
+
+function saveLocal() {
+  localStorage.setItem('localState', JSON.stringify(localState));
+  localStorage.setItem('pageIdMap', JSON.stringify(pageIdMap));
+}
+
+async function connectNotion() {
+  const token = document.getElementById('token-input').value.trim();
+  const dbRaw = document.getElementById('db-input').value.trim();
+  const errEl = document.getElementById('setup-err');
+  errEl.style.display = 'none';
+
+  if (!token.startsWith('secret_') && !token.startsWith('ntn_')) {
+    errEl.textContent = 'Token 格式不對，請確認是完整複製';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Extract DB ID
+  let dbId = dbRaw.replace(/-/g, '');
+  const match = dbRaw.match(/([a-f0-9]{32})/i);
+  if (match) dbId = match[1];
+  if (dbId.length !== 32) {
+    errEl.textContent = '資料庫 ID 格式不對，請確認是 32 個字元';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Test connection
+  document.querySelector('.setup-btn').textContent = '連接中...';
+  try {
+    const res = await notionFetch(`databases/${dbId}`, 'GET', null, token);
+    if (res.object === 'error') throw new Error(res.code + ': ' + res.message);
+    localStorage.setItem('nToken', token);
+    localStorage.setItem('nDbId', dbId);
+    notionToken = token;
+    notionDbId = dbId;
+    startApp();
+  } catch(e) {
+    if (e.message.includes('Failed to fetch')) {
+      errEl.textContent = '網路錯誤：瀏覽器擋住了請求（CORS）。請確認你是從 https://jiejieyen0804.github.io 開啟，不是從本地檔案開啟。';
+    } else {
+      errEl.textContent = '錯誤：' + e.message;
+    }
+    errEl.style.display = 'block';
+    document.querySelector('.setup-btn').textContent = '連接 Notion';
+  }
+}
+
+async function notionFetch(path, method, body, token) {
+  const t = token || notionToken;
+  const res = await fetch(`https://api.notion.com/v1/${path}`, {
+    method,
+    headers: {
+      'Authorization': `Bearer ${t}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  return res.json();
+}
+
+function resetSetup() {
+  if (!confirm('確定要重設連接？打卡記錄不會消失。')) return;
+  localStorage.removeItem('nToken');
+  localStorage.removeItem('nDbId');
+  location.reload();
+}
+
+// ---- App State ----
+let today = new Date(); today.setHours(0,0,0,0);
+let selDate = new Date(today);
+let wkOff = 0;
+
+function dKey(d) { return d.toISOString().split('T')[0]; }
+
+function getWeekStart(d) {
+  const r = new Date(d);
+  r.setDate(r.getDate() - r.getDay());
+  r.setHours(0,0,0,0);
+  return r;
+}
+
+function getDayTasks(dow) {
+  const isPower = POWER.includes(dow);
+  const isSat = dow === 6;
+  const haveTo = [
+    {id:'th-am', lbl:'泰文早段 15 分鐘', sub:'輸出練習：說＋寫（依本週主題）', tags:['說','寫']},
+    {id:'th-pm', lbl:'泰文晚段 15 分鐘', sub:'輸入練習：聽＋讀（依本週主題）', tags:['聽','讀']},
+    {id:'material', lbl:'存一個素材或靈感', sub:'拍到好畫面、截圖新資訊、記下觀察', tags:[]},
+  ];
+  const tryTo = [
+    {id:'post', lbl:'發一篇貼文', sub:'泰文學習帳號或旅遊生活帳號', tags:[]},
+    {id:'engage', lbl:'回覆一則留言或私訊', sub:'維持帳號互動率', tags:[]},
+  ];
+  let power = [];
+  if (isPower) power = [
+    {id:'batch', lbl:'批量準備 2–3 篇貼文素材', sub:'圖文文案、短影音腳本、靈感整理', tags:[]},
+    {id:'thai-review', lbl:'本週泰文重點複習 10 分鐘', sub:'把這週學的句子全部說一遍', tags:['說']},
+    {id:'research', lbl:'研究一個同類帳號', sub:'學一個排版技巧或文案角度', tags:[]},
+  ];
+  if (isSat) power = [
+    {id:'weekly-review', lbl:'本週回顧 15 分鐘', sub:'哪篇貼文有反應？哪個泰文沒學好？', tags:[]},
+    {id:'next-thai', lbl:'備課下週泰文素材', sub:'確認主題、找例句、準備10個單字', tags:[]},
+    {id:'next-content', lbl:'規劃下週內容題目', sub:'列出3個貼文方向', tags:[]},
+    {id:'thai-focus', lbl:'泰文主題加強練習 30 分鐘', sub:'本週弱項技能集中練習', tags:['說','聽','讀','寫']},
+  ];
+  return {haveTo, tryTo, power, isPower: isPower || isSat};
+}
+
+function tagColor(t) {
+  return {說:'tag-s', 寫:'tag-w', 聽:'tag-r', 讀:'tag-l'}[t] || '';
+}
+
+// ---- Notion Sync ----
+let syncTimer = null;
+
+function showSync(msg) {
+  const bar = document.getElementById('sync-bar');
+  bar.textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 2500);
+}
+
+async function syncToNotion(dateKey, taskId, checked, note) {
+  const pageId = pageIdMap[dateKey];
+  if (!pageId) {
+    // Try to find or create page
+    await ensureNotionPage(dateKey);
+    return syncToNotion(dateKey, taskId, checked, note);
+  }
+
+  const props = {};
+  const propMap = {
+    'th-am': '泰文早段15分鐘',
+    'th-pm': '泰文晚段15分鐘',
+    'material': '存一個素材',
+    'post': '發一篇貼文',
+    'engage': '回覆留言或私訊',
+    'batch': '加碼任務完成',
+    'thai-review': '加碼任務完成',
+    'research': '加碼任務完成',
+    'weekly-review': '加碼任務完成',
+    'next-thai': '加碼任務完成',
+    'next-content': '加碼任務完成',
+    'thai-focus': '加碼任務完成',
+  };
+
+  if (taskId && propMap[taskId]) {
+    props[propMap[taskId]] = { checkbox: checked };
+  }
+  if (note !== undefined) {
+    props['今天的小收穫'] = { rich_text: [{ text: { content: note } }] };
+  }
+
+  try {
+    await notionFetch(`pages/${pageId}`, 'PATCH', { properties: props });
+    const ind = document.getElementById('saving-ind');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 2000);
+  } catch(e) {
+    console.error('Sync error:', e);
+  }
+}
+
+async function ensureNotionPage(dateKey) {
+  // Search for existing page
+  const d = new Date(dateKey);
+  const name = `${d.getMonth()+1}/${d.getDate()} 週${DAYS[d.getDay()]}`;
+
+  const search = await notionFetch(`databases/${notionDbId}/query`, 'POST', {
+    filter: { property: '日期', date: { equals: dateKey } }
+  });
+
+  if (search.results && search.results.length > 0) {
+    pageIdMap[dateKey] = search.results[0].id;
+    saveLocal();
+    return;
+  }
+
+  // Create new page
+  const created = await notionFetch('pages', 'POST', {
+    parent: { database_id: notionDbId },
+    properties: {
+      'Name': { title: [{ text: { content: name } }] },
+      '日期': { date: { start: dateKey } }
+    }
+  });
+  pageIdMap[dateKey] = created.id;
+  saveLocal();
+}
+
+// ---- Render ----
+function makeTask(task, key, dayState, container) {
+  const checked = !!(dayState && dayState[task.id]);
+  const div = document.createElement('div');
+  div.className = 'task' + (checked ? ' done' : '');
+  const tags = task.tags.map(t => `<span class="skill-tag ${tagColor(t)}">${t}</span>`).join('');
+  div.innerHTML = `<div class="chk"><svg class="ck" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="t-lbl">${task.lbl}</div>${task.sub?`<div class="t-sub">${task.sub}</div>`:''}${tags?`<div style="margin-top:3px">${tags}</div>`:''}</div>`;
+  div.onclick = async () => {
+    if (!localState[key]) localState[key] = {};
+    localState[key][task.id] = !localState[key][task.id];
+    saveLocal();
+    renderDaily();
+    showSync('正在同步到 Notion...');
+    await syncToNotion(key, task.id, localState[key][task.id]);
+  };
+  container.appendChild(div);
+}
+
+function makeSection(title, badge, badgeCls, tasks, key, dayState, container) {
+  if (!tasks.length) return;
+  const hd = document.createElement('div'); hd.className = 'sec-hd';
+  hd.innerHTML = `<div class="sec-title">${title}</div><span class="badge ${badgeCls}">${badge}</span>`;
+  container.appendChild(hd);
+  tasks.forEach(t => makeTask(t, key, dayState, container));
+}
+
+function renderDaily() {
+  const ws = getWeekStart(today);
+  ws.setDate(ws.getDate() + wkOff * 7);
+  const we = new Date(ws); we.setDate(we.getDate() + 6);
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  document.getElementById('wk-lbl').textContent = `${fmt(ws)} — ${fmt(we)}`;
+
+  const tabs = document.getElementById('day-tabs'); tabs.innerHTML = '';
+  const todayKey = dKey(new Date());
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ws); d.setDate(d.getDate() + i);
+    const key = dKey(d); const dow = d.getDay();
+    const isPower = POWER.includes(dow) || dow === 6;
+    const cfg = getDayTasks(dow);
+    const all = [...cfg.haveTo, ...cfg.tryTo, ...cfg.power];
+    const done = all.filter(t => (localState[key]||{})[t.id]).length;
+    const isToday = key === todayKey;
+    const btn = document.createElement('div');
+    btn.className = 'day-tab' + (isPower?' power':'') + (key===dKey(selDate)?' active':'');
+    btn.innerHTML = `<div style="font-weight:500">週${DAYS[dow]}${isToday?'·':''}</div><div style="font-size:10px;margin-top:2px;color:${done>0&&key!==dKey(selDate)?'#7C9E8A':'inherit'}">${done}/${all.length}</div>`;
+    btn.onclick = (()=>{const dd=new Date(d);return()=>{selDate=dd;renderDaily();}})();
+    tabs.appendChild(btn);
+  }
+
+  const dow = selDate.getDay();
+  const cfg = getDayTasks(dow);
+  const key = dKey(selDate);
+  const dayState = localState[key] || {};
+
+  const banner = document.getElementById('banner');
+  if (POWER.includes(dow)) { banner.style.display='block'; banner.textContent='週二 / 週四晚上有 3–4 小時 — 黃金時段，把加碼任務也做掉！'; }
+  else if (dow===6) { banner.style.display='block'; banner.textContent='週六有空 — 做週回顧、備課下週泰文、規劃內容的最佳時機！'; }
+  else { banner.style.display='none'; }
+
+  const all = [...cfg.haveTo, ...cfg.tryTo, ...cfg.power];
+  const done = all.filter(t => dayState[t.id]).length;
+  const pct = all.length ? Math.round(done/all.length*100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-txt').textContent = `今日進度 ${done}/${all.length}`;
+
+  const out = document.getElementById('tasks-out'); out.innerHTML = '';
+  makeSection('每天必做 have to','不能跳過','b-must',cfg.haveTo,key,dayState,out);
+  makeSection('盡量做 try to','有空就做','b-try',cfg.tryTo,key,dayState,out);
+  if (cfg.power.length) makeSection(dow===6?'週六加碼':'黃金時段加碼','今天多做','b-power',cfg.power,key,dayState,out);
+
+  const note = document.getElementById('daily-note');
+  note.value = (localState[key]&&localState[key].__note) || '';
+  note.oninput = () => {
+    if (!localState[key]) localState[key] = {};
+    localState[key].__note = note.value;
+    saveLocal();
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncToNotion(key, null, null, note.value), 1500);
+  };
+
+  // Stats
+  let streak=0, total=0, weekDone=0;
+  const ws2 = getWeekStart(new Date());
+  for (let i=0; i<365; i++) {
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const k=dKey(d); const cfg2=getDayTasks(d.getDay());
+    const mustDone = cfg2.haveTo.every(t=>(localState[k]||{})[t.id]);
+    if (mustDone) { total++; if(d>=ws2) weekDone++; if(i===streak) streak++; }
+    else if(i>0) break;
+  }
+  document.getElementById('s1').textContent = streak;
+  document.getElementById('s2').textContent = weekDone;
+  document.getElementById('s3').textContent = total;
+}
+
+function renderSat() {
+  const items = [
+    '確認下週泰文主題',
+    '找 3–5 個該主題的真實對話例句',
+    '準備 10 個核心單字，抄在手機備忘錄',
+    '找一段 YouTube / TikTok 泰語影片當聽力素材',
+    '規劃下週 3 個貼文題目',
+  ];
+  const c = document.getElementById('sat-list');
+  items.forEach((item, i) => {
+    const key='sat-prep'; const id='sat'+i;
+    const checked = !!(localState[key]&&localState[key][id]);
+    const div = document.createElement('div');
+    div.className = 'sat-item' + (checked?' done':'');
+    div.innerHTML = `<div class="chk"><svg class="ck" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="t-lbl">${item}</div>`;
+    div.onclick = () => {
+      if(!localState[key]) localState[key]={};
+      localState[key][id]=!localState[key][id];
+      saveLocal(); renderSat();
+    };
+    c.appendChild(div);
+  });
+}
+
+function renderContent() {
+  const thaiIdeas = [
+    {lbl:'本週學了什麼？做成圖文卡片分享', sub:'每週一個主題 → 5個例句 → 一張卡片'},
+    {lbl:'一個台灣人最容易說錯的泰文發音', sub:'真實親身例子，有共鳴'},
+    {lbl:'生活場景用泰文說說看', sub:'去市場、搭計程車、點餐怎麼說'},
+  ];
+  const lifeIdeas = [
+    {lbl:'曼谷住了10年才知道的在地美食', sub:'不是觀光景點，是真正的在地視角'},
+    {lbl:'在泰媽媽的買菜攻略', sub:'去哪買最新鮮、最划算'},
+    {lbl:'國際學校怎麼選？費用和真實心得', sub:'準備移居的媽媽最需要看的'},
+    {lbl:'節慶文化：當地人怎麼過節', sub:'跟觀光客看到的完全不同'},
+  ];
+
+  function makeIdea(item, i, key, container) {
+    const id = key+i;
+    const checked = !!(localState[key]&&localState[key][id]);
+    const div = document.createElement('div');
+    div.className = 'task' + (checked?' done':'');
+    div.style.marginBottom = '5px';
+    div.innerHTML = `<div class="chk"><svg class="ck" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="t-lbl">${item.lbl}</div><div class="t-sub">${item.sub}</div></div>`;
+    div.onclick = () => {
+      if(!localState[key]) localState[key]={};
+      localState[key][id]=!localState[key][id];
+      saveLocal(); renderContentStats();
+      div.className='task'+(localState[key][id]?' done':'');
+      div.querySelector('.chk').style.background = localState[key][id]?'var(--sage)':'';
+    };
+    container.appendChild(div);
+  }
+
+  const tc = document.getElementById('thai-ideas');
+  thaiIdeas.forEach((item,i) => makeIdea(item, i, 'thai-ideas', tc));
+  const lc = document.getElementById('life-ideas');
+  lifeIdeas.forEach((item,i) => makeIdea(item, i, 'life-ideas', lc));
+  renderContentStats();
+}
+
+function renderContentStats() {
+  const td = localState['thai-ideas'] ? Object.values(localState['thai-ideas']).filter(Boolean).length : 0;
+  const ld = localState['life-ideas'] ? Object.values(localState['life-ideas']).filter(Boolean).length : 0;
+  document.getElementById('c1').textContent = td+'/3';
+  document.getElementById('c2').textContent = ld+'/4';
+  document.getElementById('c3').textContent = td+ld;
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).style.display='block';
+  btn.classList.add('active');
+}
+
+function chgWeek(dir) {
+  wkOff += dir;
+  const ws = getWeekStart(today);
+  ws.setDate(ws.getDate() + wkOff * 7);
+  selDate = wkOff===0 ? new Date(today) : new Date(ws);
+  renderDaily();
+}
+
+function startApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const now = new Date();
+  document.getElementById('header-date').textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  renderDaily();
+  renderSat();
+  renderContent();
+}
+
+// Init
+loadConfig();
+if (notionToken && notionDbId) {
+  startApp();
+} else {
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+</script>
+</body>
+</html>
